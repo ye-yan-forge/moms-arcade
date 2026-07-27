@@ -218,7 +218,7 @@ function spawnDiver() {
     divers.push({
         x: fromLeft ? -8 : W + 8,
         y: y,
-        w: 6, h: 10,
+        w: 8, h: 6,
         vx: fromLeft ? 0.3 + Math.random() * 0.3 : -(0.3 + Math.random() * 0.3),
         vy: 0,
         swimFrame: 0,
@@ -644,44 +644,72 @@ function drawBubbles() {
 function drawSub() {
     const sx = Math.round(sub.x);
     const sy = Math.round(sub.y);
+    const w = sub.w;  // 16
 
-    // Propeller (animated)
+    // Propeller (animated, behind sub on left)
     ctx.fillStyle = C.subDark;
-    const propOffset = sub.vx >= 0 ? -2 : sub.w;
     if (Math.floor(frameCount / 3) % 2 === 0) {
-        ctx.fillRect(sx + propOffset, sy + 1, 2, 1);
-        ctx.fillRect(sx + propOffset, sy + 4, 2, 1);
+        ctx.fillRect(sx - 3, sy + 1, 2, 1);
+        ctx.fillRect(sx - 3, sy + 5, 2, 1);
+        ctx.fillRect(sx - 2, sy + 3, 2, 1);
     } else {
-        ctx.fillRect(sx + propOffset, sy + 2, 2, 3);
+        ctx.fillRect(sx - 3, sy + 2, 2, 1);
+        ctx.fillRect(sx - 3, sy + 4, 2, 1);
+        ctx.fillRect(sx - 2, sy + 0, 2, 1);
+        ctx.fillRect(sx - 2, sy + 6, 2, 1);
     }
 
-    // Conning tower
+    // Conning tower (taller, with windows)
     ctx.fillStyle = C.sub;
-    ctx.fillRect(sx + 5, sy - 2, 4, 2);
+    ctx.fillRect(sx + 5, sy - 3, 5, 3);
     ctx.fillStyle = C.subDark;
-    ctx.fillRect(sx + 6, sy - 1, 2, 1);
+    ctx.fillRect(sx + 6, sy - 2, 1, 1);
+    ctx.fillRect(sx + 8, sy - 2, 1, 1);
 
-    // Main body
-    ctx.fillStyle = C.subBody;
-    ctx.fillRect(sx, sy + 1, sub.w, 5);
+    // Periscope (L-shape going up and right)
     ctx.fillStyle = C.sub;
-    ctx.fillRect(sx + 1, sy + 2, sub.w - 2, 3);
+    ctx.fillRect(sx + 7, sy - 6, 1, 3);
+    ctx.fillRect(sx + 7, sy - 6, 3, 1);
 
-    // Windows
-    ctx.fillStyle = C.white;
-    ctx.fillRect(sx + 3, sy + 3, 1, 1);
-    ctx.fillRect(sx + 7, sy + 3, 1, 1);
-    ctx.fillRect(sx + 11, sy + 3, 1, 1);
+    // Main body — top half (light)
+    ctx.fillStyle = C.sub;
+    ctx.fillRect(sx, sy, w, 4);
 
-    // Nose
+    // Bottom half (darker — two-tone like the reference)
     ctx.fillStyle = C.subDark;
-    ctx.fillRect(sx + sub.w, sy + 2, 1, 3);
+    ctx.fillRect(sx, sy + 4, w, 3);
 
-    // Direction indicator (which way facing)
+    // Rounded nose (right side)
     ctx.fillStyle = C.sub;
-    if (sub.vx >= 0) {
-        ctx.fillRect(sx + sub.w + 1, sy + 3, 1, 1);
+    ctx.fillRect(sx + w, sy + 1, 1, 2);
+    ctx.fillStyle = C.subDark;
+    ctx.fillRect(sx + w, sy + 4, 1, 2);
+
+    // Rounded tail cap (left side)
+    ctx.fillRect(sx - 1, sy + 1, 1, 5);
+
+    // Portholes — 3 round windows (not single pixels)
+    // Each porthole is a 3x3 circle approximation
+    for (let i = 0; i < 3; i++) {
+        const px = sx + 2 + i * 5;
+        const py = sy + 2;
+        // Light rim
+        ctx.fillStyle = C.sub;
+        ctx.fillRect(px, py - 1, 3, 1);
+        ctx.fillRect(px, py + 2, 3, 1);
+        ctx.fillRect(px - 1, py, 1, 2);
+        ctx.fillRect(px + 3, py, 1, 2);
+        // Dark glass center
+        ctx.fillStyle = '#001133';
+        ctx.fillRect(px, py, 3, 2);
+        // Small highlight
+        ctx.fillStyle = 'rgba(100,180,255,0.5)';
+        ctx.fillRect(px + 1, py, 1, 1);
     }
+
+    // Body seam line between top and bottom halves
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(sx, sy + 4, w, 1);
 }
 
 function drawTorpedo(t) {
@@ -701,52 +729,55 @@ function drawDiver(d) {
     const dir = d.vx > 0 ? 1 : -1;
     const swim = Math.floor(d.swimFrame * 2) % 2 === 0;
 
-    // Helmet (round head) — bigger, yellow-gold like classic SeaQuest
-    ctx.fillStyle = '#ffdd44';
-    ctx.fillRect(dx + 1, dy, 4, 1);
-    ctx.fillRect(dx, dy + 1, 6, 2);
-    // Helmet glass visor
-    ctx.fillStyle = '#88ccff';
-    if (dir > 0) ctx.fillRect(dx + 3, dy + 1, 2, 1);
-    else ctx.fillRect(dx + 1, dy + 1, 2, 1);
+    // Horizontal swimming pose facing right (or mirrored for left)
+    // Body: lime green suit, horizontal
+    ctx.fillStyle = '#88dd44';
+    ctx.fillRect(dx + 1, dy + 2, 4, 3);  // torso
 
-    // Body suit (orange-red, like classic Atari divers)
-    ctx.fillStyle = '#ff6644';
-    ctx.fillRect(dx + 1, dy + 3, 4, 4);
-    ctx.fillStyle = '#cc3322';
-    ctx.fillRect(dx + 1, dy + 6, 4, 1);  // belt
+    // Head: blocky helmet facing direction
+    ctx.fillStyle = '#88dd44';
+    ctx.fillRect(dx + 5, dy + 1, 2, 3);
+    // Helmet visor (dark)
+    ctx.fillStyle = '#225522';
+    ctx.fillRect(dx + 6, dy + 2, 1, 1);
 
-    // Arms (swimming animation)
-    ctx.fillStyle = '#ff6644';
+    // Air tank on back (dark green block)
+    ctx.fillStyle = '#336633';
+    ctx.fillRect(dx, dy + 1, 1, 4);
+
+    // Arms reaching forward (alternating stroke)
+    ctx.fillStyle = '#88dd44';
     if (swim) {
-        ctx.fillRect(dx - 1, dy + 3, 2, 1);       // left arm forward
-        ctx.fillRect(dx + 5, dy + 5, 2, 1);       // right arm back
+        ctx.fillRect(dx + 6, dy, 1, 1);      // arm up-forward
+        ctx.fillRect(dx + 7, dy + 2, 1, 1);  // arm forward
     } else {
-        ctx.fillRect(dx - 1, dy + 5, 2, 1);       // left arm back
-        ctx.fillRect(dx + 5, dy + 3, 2, 1);       // right arm forward
+        ctx.fillRect(dx + 6, dy + 4, 1, 1);  // arm down
+        ctx.fillRect(dx + 7, dy + 2, 1, 1);  // arm forward
     }
 
-    // Legs / flippers
-    ctx.fillStyle = '#ffdd44';
-    ctx.fillRect(dx + 1, dy + 7, 1, 2);  // left leg
-    ctx.fillRect(dx + 4, dy + 7, 1, 2);  // right leg
-    // Flippers
-    ctx.fillStyle = '#ffaa00';
+    // Legs kicking back
+    ctx.fillStyle = '#88dd44';
     if (swim) {
-        ctx.fillRect(dx, dy + 9, 2, 1);
-        ctx.fillRect(dx + 4, dy + 9, 2, 1);
+        ctx.fillRect(dx - 1, dy + 1, 2, 1);  // leg up
+        ctx.fillRect(dx - 1, dy + 4, 2, 1);  // leg down
     } else {
-        ctx.fillRect(dx + 1, dy + 9, 1, 1);
-        ctx.fillRect(dx + 4, dy + 9, 1, 1);
+        ctx.fillRect(dx - 1, dy + 2, 2, 2);  // legs together
     }
 
-    // Air tank on back
-    ctx.fillStyle = '#aaaaaa';
-    ctx.fillRect(dx + (dir > 0 ? 5 : 0), dy + 3, 1, 3);
-    // Air bubble from tank
+    // Flippers (dark green, angled)
+    ctx.fillStyle = '#336633';
     if (swim) {
-        ctx.fillStyle = 'rgba(200,230,255,0.5)';
-        ctx.fillRect(dx + (dir > 0 ? 6 : -1), dy + 2, 1, 1);
+        ctx.fillRect(dx - 2, dy + 1, 1, 1);
+        ctx.fillRect(dx - 2, dy + 5, 1, 1);
+    } else {
+        ctx.fillRect(dx - 2, dy + 2, 1, 2);
+    }
+
+    // Bubble trail (going up-left from tank)
+    if (swim) {
+        ctx.fillStyle = 'rgba(200,230,255,0.4)';
+        ctx.fillRect(dx - 1, dy, 1, 1);
+        ctx.fillRect(dx, dy - 1, 1, 1);
     }
 }
 
