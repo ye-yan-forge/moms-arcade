@@ -218,7 +218,7 @@ function spawnDiver() {
     divers.push({
         x: fromLeft ? -8 : W + 8,
         y: y,
-        w: 6, h: 8,
+        w: 6, h: 10,
         vx: fromLeft ? 0.3 + Math.random() * 0.3 : -(0.3 + Math.random() * 0.3),
         vy: 0,
         swimFrame: 0,
@@ -698,28 +698,56 @@ function drawTorpedo(t) {
 function drawDiver(d) {
     const dx = Math.round(d.x);
     const dy = Math.round(d.y);
+    const dir = d.vx > 0 ? 1 : -1;
     const swim = Math.floor(d.swimFrame * 2) % 2 === 0;
 
-    // Body
-    ctx.fillStyle = C.diver;
-    ctx.fillRect(dx + 1, dy + 2, 3, 4);
-    // Head
-    ctx.fillRect(dx + 1, dy, 3, 2);
-    // Helmet glass
-    ctx.fillStyle = C.white;
-    ctx.fillRect(dx + 2, dy, 1, 1);
-    // Flippers
-    ctx.fillStyle = C.diverDark;
+    // Helmet (round head) — bigger, yellow-gold like classic SeaQuest
+    ctx.fillStyle = '#ffdd44';
+    ctx.fillRect(dx + 1, dy, 4, 1);
+    ctx.fillRect(dx, dy + 1, 6, 2);
+    // Helmet glass visor
+    ctx.fillStyle = '#88ccff';
+    if (dir > 0) ctx.fillRect(dx + 3, dy + 1, 2, 1);
+    else ctx.fillRect(dx + 1, dy + 1, 2, 1);
+
+    // Body suit (orange-red, like classic Atari divers)
+    ctx.fillStyle = '#ff6644';
+    ctx.fillRect(dx + 1, dy + 3, 4, 4);
+    ctx.fillStyle = '#cc3322';
+    ctx.fillRect(dx + 1, dy + 6, 4, 1);  // belt
+
+    // Arms (swimming animation)
+    ctx.fillStyle = '#ff6644';
     if (swim) {
-        ctx.fillRect(dx, dy + 5, 2, 2);
-        ctx.fillRect(dx + 3, dy + 5, 2, 2);
+        ctx.fillRect(dx - 1, dy + 3, 2, 1);       // left arm forward
+        ctx.fillRect(dx + 5, dy + 5, 2, 1);       // right arm back
     } else {
-        ctx.fillRect(dx, dy + 6, 2, 1);
-        ctx.fillRect(dx + 3, dy + 6, 2, 1);
+        ctx.fillRect(dx - 1, dy + 5, 2, 1);       // left arm back
+        ctx.fillRect(dx + 5, dy + 3, 2, 1);       // right arm forward
     }
-    // Air tank
-    ctx.fillStyle = C.diverDark;
-    ctx.fillRect(dx + (d.vx > 0 ? 4 : -1), dy + 2, 1, 3);
+
+    // Legs / flippers
+    ctx.fillStyle = '#ffdd44';
+    ctx.fillRect(dx + 1, dy + 7, 1, 2);  // left leg
+    ctx.fillRect(dx + 4, dy + 7, 1, 2);  // right leg
+    // Flippers
+    ctx.fillStyle = '#ffaa00';
+    if (swim) {
+        ctx.fillRect(dx, dy + 9, 2, 1);
+        ctx.fillRect(dx + 4, dy + 9, 2, 1);
+    } else {
+        ctx.fillRect(dx + 1, dy + 9, 1, 1);
+        ctx.fillRect(dx + 4, dy + 9, 1, 1);
+    }
+
+    // Air tank on back
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillRect(dx + (dir > 0 ? 5 : 0), dy + 3, 1, 3);
+    // Air bubble from tank
+    if (swim) {
+        ctx.fillStyle = 'rgba(200,230,255,0.5)';
+        ctx.fillRect(dx + (dir > 0 ? 6 : -1), dy + 2, 1, 1);
+    }
 }
 
 function drawEnemy(e) {
