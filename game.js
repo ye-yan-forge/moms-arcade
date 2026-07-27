@@ -849,12 +849,12 @@ function drawHUD() {
     const fillW = Math.ceil(barW * fillRatio);
     ctx.fillRect(barX, barY, fillW, barH);
 
-    // Divers held indicator (shown above oxygen bar)
+    // Divers held indicator (below lives, top right)
     if (diversHeld > 0) {
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'right';
         ctx.fillStyle = C.diver;
         ctx.font = 'bold 8px "Courier New", monospace';
-        ctx.fillText('🤿 ' + diversHeld + '/' + MAX_DIVERS_HELD, 2, barY - 2);
+        ctx.fillText('🤿 ' + diversHeld + '/' + MAX_DIVERS_HELD, W - 2, 19);
     }
 
     // Low oxygen warning text
