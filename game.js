@@ -12,6 +12,12 @@ ctx.imageSmoothingEnabled = false;
 
 // ═══ CONSTANTS ═════════════════════════════════════════
 const W = 192, H = 220;
+// Scale up rendering for crisp pixels on hi-DPI screens
+const SCALE = 3;
+canvas.width = W * SCALE;   // 576
+canvas.height = H * SCALE;  // 660
+ctx.scale(SCALE, SCALE);
+ctx.imageSmoothingEnabled = false;
 const SURFACE_Y = 30;           // Water surface line
 const SEA_FLOOR_Y = 200;        // Sea floor
 const PLAY_TOP = SURFACE_Y + 4;
@@ -358,7 +364,8 @@ function update() {
         sub.x += sub.vx;
         sub.y += sub.vy;
         sub.x = Math.max(0, Math.min(W - sub.w, sub.x));
-        sub.y = Math.max(PLAY_TOP, Math.min(PLAY_BOTTOM - sub.h, sub.y));
+        // Allow sub to reach the surface recharge zone (SURFACE_Y) but not above it
+        sub.y = Math.max(SURFACE_Y, Math.min(PLAY_BOTTOM - sub.h, sub.y));
 
         sub.wobble = (sub.wobble + 0.3) % (Math.PI * 2);
 
@@ -377,9 +384,9 @@ function update() {
             SFX.shoot();
         }
 
-        // Oxygen drain
-        if (sub.y < SURFACE_Y + 2) {
-            // At surface — refill
+        // Oxygen drain — recharge zone is from top of water to a few pixels below surface
+        if (sub.y < SURFACE_Y + 6) {
+            // At/near surface — refill
             oxygen = Math.min(OXYGEN_MAX, oxygen + 20);
             // Deliver divers if carrying any
             if (diversHeld > 0) {
