@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SeaQuest">
+    <meta name="theme-color" content="#001122">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.png" type="image/png">
+    <title>SeaQuest</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            width: 100%; height: 100%; overflow: hidden; 
+            background: #000; 
+            -webkit-user-select: none; user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+            font-family: 'Courier New', monospace;
+        }
+        #game-wrapper {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: #000;
+        }
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            max-width: 100%; max-height: 100%;
+        }
+        /* Touch Controls */
+        #touch-controls {
+            display: none;
+            position: fixed; bottom: 0; left: 0;
+            width: 100%; height: 45%;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .dpad {
+            position: absolute; bottom: 20px; left: 20px;
+            width: 140px; height: 140px;
+            pointer-events: auto;
+        }
+        .dpad-btn {
+            position: absolute;
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dpad-btn:active { background: rgba(0,200,255,0.3); }
+        .dpad-up    { top: 0; left: 46px; }
+        .dpad-down  { bottom: 0; left: 46px; }
+        .dpad-left  { top: 46px; left: 0; }
+        .dpad-right { top: 46px; right: 0; }
+        .fire-btn {
+            position: absolute; bottom: 30px; right: 30px;
+            width: 90px; height: 90px;
+            background: rgba(255,80,80,0.2);
+            border: 3px solid rgba(255,80,80,0.5);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,200,200,0.7);
+            font-size: 14px; font-weight: bold;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .fire-btn:active { background: rgba(255,80,80,0.5); transform: scale(0.95); }
+        /* Title screen overlay */
+        #title-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 20;
+            transition: opacity 0.5s;
+        }
+        #title-screen.hidden { opacity: 0; pointer-events: none; }
+        #title-screen h1 {
+            color: #00ddff;
+            font-size: clamp(28px, 8vw, 56px);
+            text-shadow: 0 0 20px rgba(0,221,255,0.5);
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+        }
+        #title-screen .subtitle {
+            color: #ffcc00; font-size: 14px; margin-bottom: 30px;
+        }
+        #title-screen .info {
+            color: #888; font-size: 12px; text-align: center; line-height: 1.6;
+            max-width: 320px; padding: 0 20px;
+        }
+        #title-screen .press-start {
+            color: #fff; font-size: 16px;
+            margin-top: 30px;
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.2; } }
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="game" width="192" height="220"></canvas>
+    </div>
+
+    <div id="touch-controls">
+        <div class="dpad">
+            <div class="dpad-btn dpad-up"    data-key="ArrowUp">▲</div>
+            <div class="dpad-btn dpad-down"  data-key="ArrowDown">▼</div>
+            <div class="dpad-btn dpad-left"  data-key="ArrowLeft">◄</div>
+            <div class="dpad-btn dpad-right" data-key="ArrowRight">►</div>
+        </div>
+        <div class="fire-btn" data-key=" ">FIRE</div>
+    </div>
+
+    <div id="title-screen">
+        <h1>SEAQUEST</h1>
+        <div class="subtitle">⚓ RESCUE THE DIVERS ⚓</div>
+        <div class="info">
+            Guide your submarine to rescue divers.<br>
+            Watch your oxygen — return to surface to refill.<br>
+            Avoid or shoot the sea creatures.<br><br>
+            Don't carry too many divers at once!
+        </div>
+        <div class="press-start">TAP TO START</div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+    </script>
+    <script src="game.js"></script>
+</body>
+</html>
