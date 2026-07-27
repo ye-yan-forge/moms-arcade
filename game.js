@@ -399,6 +399,10 @@ function update() {
                 spawnParticles(sub.x + sub.w/2, sub.y, C.diver, diversHeld * 4);
                 diversDelivered += diversHeld;
                 diversHeld = 0;
+                // Remove all carried divers from the array
+                for (let j = divers.length - 1; j >= 0; j--) {
+                    if (divers[j].carried) divers.splice(j, 1);
+                }
             }
         } else {
             oxygen--;
@@ -845,11 +849,12 @@ function drawHUD() {
     const fillW = Math.ceil(barW * fillRatio);
     ctx.fillRect(barX, barY, fillW, barH);
 
-    // Divers held indicator
+    // Divers held indicator (shown above oxygen bar)
     if (diversHeld > 0) {
         ctx.textAlign = 'left';
         ctx.fillStyle = C.diver;
-        ctx.fillText('DIVERS: ' + diversHeld + '/' + MAX_DIVERS_HELD, 2, SURFACE_Y - 3);
+        ctx.font = 'bold 8px "Courier New", monospace';
+        ctx.fillText('🤿 ' + diversHeld + '/' + MAX_DIVERS_HELD, 2, barY - 2);
     }
 
     // Low oxygen warning text

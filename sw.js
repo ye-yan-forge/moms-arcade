@@ -1,5 +1,5 @@
 // SeaQuest Service Worker — offline cache for mom's arcade
-const CACHE_NAME = 'seaquest-v2';
+const CACHE_NAME = 'seaquest-v3';
 const ASSETS = [
     './',
     './index.html',
